@@ -3,27 +3,27 @@
 import PIL.Image as image
 
 
+def check_pixels(pixels):
+    width = len(pixels[0])
+    if not all(len(row) == width for row in pixels):
+        raise ValueError("Width has to be the same for all rows")
+    pixel_size = len(pixels[0][0])
+    for row in pixels:
+        for pixel in row:
+            if len(pixel) != pixel_size:
+                raise ValueError('Pixel size must be consistent')
+
+
 def copy(pixels):
     return [row[:] for row in pixels]
 
 
 def grayscale_bitmap(pixels):
-    height = len(pixels)
-    width = len(pixels[0])
-    if not all(len(row) == width for row in pixels):
-        raise ValueError("Width has to be the same for all rows")
-
-    bitmap = bytearray()
-    bitmap.extend(_bmp_header_with_stubs())
-    bitmap.extend(_grayscale_dib_header(width, height))
-    bitmap.extend(_grayscale_linear_palette())
-    pixel_array_offset = len(bitmap)
-    # bmps are bottom to top
-    for row in reversed(pixels):
-        for pixel in row:
-            bitmap.extend(pixel)
-    _update_bmp_header(bitmap, pixel_array_offset)
-    return bitmap
+    return _bitmap(
+        pixels,
+        _grayscale_dib_header,
+        _grayscale_linear_palette()
+    )
 
 
 def load_bitmap(filename):
@@ -37,7 +37,31 @@ def load_bitmap(filename):
 
 
 def rgb_bitmap(pixels):
-    pass
+    check_pixels(pixels)
+    height = len(pixels)
+    width = len(pixels[0])
+
+    bitmap = bytearray()
+    bitmap.extend(_bmp_header_with_stubs())
+    bitmap.extend(_rgd_dib_header(width, height))
+
+
+def _bitmap(pixels, dib_header_getter, palette):
+    check_pixels(pixels)
+    height = len(pixels)
+    width = len(pixels[0])
+
+    bitmap = bytearray()
+    bitmap.extend(_bmp_header_with_stubs())
+    bitmap.extend(dib_header_getter(width, height))
+    bitmap.extend(palette)
+    pixel_array_offset = len(bitmap)
+    # bmps are bottom to top
+    for row in reversed(pixels):
+        for pixel in row:
+            bitmap.extend(pixel)
+    _update_bmp_header(bitmap, pixel_array_offset)
+    return bitmap
 
 
 def _get_stub_data(width, height):
@@ -87,6 +111,11 @@ def _int32_to_bytes(i):
         i >> 16 & 0xff,
         i >> 24 & 0xff
     )
+
+
+def _read_bytearray(filename):
+    with open(filename, 'rb') as f:
+        return bytearray(f.read())
 
 
 def _update_bmp_header(bitmap, pixel_array_offset):
