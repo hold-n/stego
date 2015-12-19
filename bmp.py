@@ -1,15 +1,23 @@
-#! /bin/python
-
 from utils import bytes_to_number, number_to_bytes
 
 import pdb
 
 
-_DATA_SIZE_OFFSET = 28
-_HEIGHT_OFFSET = 22
-_PIXEL_OFFSET = 10
 _SIZE_OFFSET = 2
+_SIZE_LEN = 4
+
+_DATA_OFFSET = 10
+_DATA_LEN = 4
+
+_BITS_PER_PIXEL_OFFSET = 28
+_BITS_PER_PIXEL_LEN = 2
+
+_HEIGHT_OFFSET = 22
 _WIDTH_OFFSET = 18
+_DIM_LEN = 2
+
+
+# TODO: add support for ICC Color profile section
 
 
 class Bitmap(object):
@@ -26,7 +34,7 @@ class Bitmap(object):
             )
         self.pixels = [bytearray(row) for row in pixels]
         self.height = len(pixels)
-        self.width = len(pixels[0])
+        self.width = len(pixels[0])/bits_per_pixel*8
         self.bits_per_pixel = bits_per_pixel
 
     def copy(self):
@@ -123,13 +131,13 @@ def _grayscale_palette():
 
 def _parse_bmp(data):
     pixel_array_offset = bytes_to_number(
-        data[_PIXEL_OFFSET:_PIXEL_OFFSET+4]
+        data[_DATA_OFFSET:_DATA_OFFSET+_DATA_LEN]
     )
     bits_per_pixel = bytes_to_number(
-        data[_DATA_SIZE_OFFSET:_DATA_SIZE_OFFSET+4]
+        data[_BITS_PER_PIXEL_OFFSET:_BITS_PER_PIXEL_OFFSET+_BITS_PER_PIXEL_LEN]
     )
-    width = bytes_to_number(data[_WIDTH_OFFSET:_WIDTH_OFFSET+4])
-    height = bytes_to_number(data[_HEIGHT_OFFSET:_HEIGHT_OFFSET+4])
+    width = bytes_to_number(data[_WIDTH_OFFSET:_WIDTH_OFFSET+_DIM_LEN])
+    height = bytes_to_number(data[_HEIGHT_OFFSET:_HEIGHT_OFFSET+_DIM_LEN])
     data = data[pixel_array_offset:]
     if height*width*bits_per_pixel/8 != len(data):
         raise ValueError('Invalid data format')
@@ -144,7 +152,7 @@ def _update_bmp_header(data, pixel_array_offset):
     '''
     Updates placeholders in the bitmap after it has been fully constructed
     '''
-    data[_SIZE_OFFSET:_SIZE_OFFSET+4] = number_to_bytes(len(data))
-    data[_PIXEL_OFFSET:_PIXEL_OFFSET+4] = number_to_bytes(
+    data[_SIZE_OFFSET:_SIZE_OFFSET+_SIZE_LEN] = number_to_bytes(len(data))
+    data[_DATA_OFFSET:_DATA_OFFSET+_DATA_LEN] = number_to_bytes(
         pixel_array_offset
     )
