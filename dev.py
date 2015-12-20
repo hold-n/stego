@@ -1,7 +1,7 @@
 #! /bin/python
 
 import bmp
-import stego
+import lsb
 
 import pdb
 
@@ -15,26 +15,26 @@ SMALL_MSG = 'hello'
 
 PASSWORD = 'password'
 
-INFILE = 'data/Pencil_icon1.bmp'
+INFILE = 'data/Lenna.bmp'
 MY_BITMAP = 'data/bitmap.bmp'
 OUTFILE = 'data/stego.bmp'
 
 
 def main():
-    _lsb_basic_read()
+    _lsb_write()
 
 
-def _lsb_basic_read():
+def _lsb_read():
     bitmap = bmp.load(OUTFILE)
-    print stego.extract_lsb_message_basic(
-        bitmap, bits_used=5
+    print lsb.extract(
+        bitmap, PASSWORD, bits_used=5
     )
 
 
-def _lsb_basic_write():
+def _lsb_write():
     bitmap = bmp.load(INFILE)
-    modified = stego.insert_lsb_message_basic(
-        bitmap, MESSAGE, bits_used=5
+    modified = lsb.insert(
+        bitmap, PASSWORD, MESSAGE, bits_used=1
     )
     bmp.save(modified, bmp.rgb_palette(), OUTFILE)
 
