@@ -1,7 +1,5 @@
 from utils import bytes_to_number, number_to_bytes
 
-import pdb
-
 
 _SIZE_OFFSET = 2
 _SIZE_LEN = 4
@@ -17,7 +15,7 @@ _WIDTH_OFFSET = 18
 _DIM_LEN = 2
 
 
-# TODO: add support for ICC Color profile section
+# TODO: add support for ICC Color pixelsrofile section
 
 
 class Bitmap(object):
@@ -48,6 +46,9 @@ class Bitmap(object):
         if x > self.width or y > self.height:
             raise ValueError('Coordinates outside of the bitmap size')
         self.pixels[y][x*band_num:(x+1)*band_num]
+
+    def bit_size(self):
+        return self.width * self.height * self.bits_per_pixel
 
 
 def check_pixels(pixels):

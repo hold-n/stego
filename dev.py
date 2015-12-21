@@ -3,8 +3,6 @@
 import bmp
 import lsb
 
-import pdb
-
 
 MESSAGE = '''Han Solo is a fictional character in the Star Wars franchise, portrayed in films by Harrison Ford. In the original film trilogy, Han and his co-pilot, Chewbacca, become involved in the Rebel Alliance which opposes the Galactic Empire. During the course of the Star Wars story, he becomes a chief figure in the Alliance and succeeding galactic governments. Star Wars creator George Lucas described the character as "a loner who realizes the importance of being part of a group and helping for the common good".[1]
 On Tatooine, Solo accepts a charter to transport Luke Skywalker, Ben Kenobi, C-3PO and R2-D2 to Alderaan in his Millennium Falcon spaceship for a payment which will help him clear debt. But when the crew and passengers arrive at the planet's coordinates, they discover that Alderaan has been destroyed by the Death Star. The Falcon is then captured and held within the battle station, however Han Solo, Chewbacca and his passengers evade capture by hiding in the ship smuggling compartments. While trying to find a way to escape, they discover that Princess Leia Organa is being held captive aboard the station. Enticed by the likelihood of a large reward, Solo and Chewbacca help Skywalker rescue the princess and escape from the Death Star

@@ -27,8 +27,7 @@ _CLEAR_MASKS = {
 
 
 def extract(bitmap, password, bits_used=1):
-    if not 1 <= bits_used <= 8:
-        raise ValueError('bits_used must be between 1 and 8')
+    _check_on_extract(bitmap, bits_used)
     size = _get_size_mark(bitmap, bits_used)
     bits = []
     # TODO: consider the case when there's not enough space on one row for mark
@@ -38,7 +37,8 @@ def extract(bitmap, password, bits_used=1):
     row_length = bitmap.width*bitmap.bits_per_pixel/8
     # entangled loop flat loop so that it would be easier to break out
     while len(bits) < size*8:
-        bits.append(1 if bitmap.pixels[row_index][col_index] & _SET_MASKS[bit] else 0
+        bits.append(
+            1 if bitmap.pixels[row_index][col_index] & _SET_MASKS[bit] else 0
         )
         if bits_used - bit > 1:
             bit += 1
@@ -58,8 +58,7 @@ def extract(bitmap, password, bits_used=1):
 
 
 def insert(bitmap, password, message, bits_used=1):
-    if not 1 <= bits_used <= 8:
-        raise ValueError('bits_used must be between 1 and 8')
+    _check_on_insert(bitmap, message, bits_used)
     result = bitmap.copy()
     if password is not None:
         message = utils.encrypt_message(message, password)
@@ -77,11 +76,23 @@ def insert(bitmap, password, message, bits_used=1):
                 bit_index += 1
                 if bit_index >= len(bits):
                     return result
-    raise ValueError('Message does not fit in the given bitmap')
+    raise Exception('Unexpected error')
 
 
 def _add_size_mark(msg):
     return utils.number_to_bytes(len(msg), _SIZE_MARK_SIZE/8) + msg
+
+
+def _check_on_extract(bitmap, bits_used):
+    if not 1 <= bits_used <= 8:
+        raise ValueError('bits_used must be between 1 and 8')
+
+
+def _check_on_insert(bitmap, message, bits_used):
+    if bitmap.bit_size() < len(message)*8/bits_used:
+        raise ValueError("The message will not fit in the image")
+    if not 1 <= bits_used <= 8:
+        raise ValueError('bits_used must be between 1 and 8')
 
 
 def _get_size_mark(bitmap, bits_used):
